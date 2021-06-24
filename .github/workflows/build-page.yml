@@ -1,6 +1,9 @@
 name: Build Page
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -11,10 +14,6 @@ jobs:
       - uses: actions/setup-node@v2-beta
         with:
           node-version: 14.x
-
-      - name: Install on Scripts
-        working-directory: ./scripts
-        run: npm install
 
       - name: Install
         run: npm install
