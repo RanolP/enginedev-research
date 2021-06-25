@@ -1,22 +1,27 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import './App.css';
-import { World } from './@ecs/world';
-import { Dispatcher } from './@ecs/dispatcher';
-import { Entity } from './@ecs/entity';
 import { useKeyboardInput } from './hooks/use-keyboard-input';
 import { Position } from './@game/components/position';
 import { Velocity } from './@game/components/velocity';
 import { MovementSystem } from './@game/systems/movement';
 import { AirResistenceSystem } from './@game/systems/air-resistence';
 import { GravitySystem } from './@game/systems/gravity';
+import { useWorld } from './hooks/@ecs/use-world';
+import { useDispatcher } from './hooks/@ecs/use-dispatcher';
+import { useEntity } from './hooks/@ecs/use-entity';
+import { useEventLoop } from './hooks/use-event-loop';
 
 function App() {
-  const [world, setWorld] = useState<World | null>(null);
-  const [dispatcher, setDispatcher] = useState<Dispatcher | null>(null);
-  const [player, setPlayer] = useState<Entity<
-    readonly [typeof Position.Data, typeof Velocity.Data]
-  > | null>(null);
-  const [_, forceRerender] = useState(0);
+  const world = useWorld();
+  const dispatcher = useDispatcher(world, [
+    MovementSystem,
+    AirResistenceSystem,
+    GravitySystem,
+  ]);
+  const player = useEntity(world, [
+    Position.create({ x: 0, y: 0 }),
+    Velocity.create({ x: 0, y: 0 }),
+  ] as const);
   const { keypress, handleKeyDown, handleKeyUp } = useKeyboardInput({
     w: 'moveUp',
     a: 'moveLeft',
@@ -24,34 +29,12 @@ function App() {
     d: 'moveRight',
   } as const);
 
-  useEffect(() => {
-    const world = new World();
-    setWorld(world);
-
-    const player = world.createEntity([
-      Position.create({ x: 0, y: 0 }),
-      Velocity.create({ x: 0, y: 0 }),
-    ] as const);
-    setPlayer(player);
-
-    const dispatcher = new Dispatcher([
-      MovementSystem,
-      AirResistenceSystem,
-      GravitySystem,
-    ]);
-
-    dispatcher.setup(world);
-
-    setDispatcher(dispatcher);
-  }, []);
-
   const move = useCallback(
     (x: number, y: number) => {
-      const velocity = player?.getDataFor(Velocity);
-      if (!velocity) return;
-
-      velocity.x += x;
-      velocity.y += y;
+      player?.mutate(Velocity, (velocity) => {
+        velocity.x += x;
+        velocity.y += y;
+      });
     },
     [player]
   );
@@ -63,18 +46,14 @@ function App() {
     if (keypress.current.moveRight) move(6, 0);
   }, [keypress.current, move]);
 
-  useEffect(() => {
-    const scheduler = setInterval(() => {
-      if (world === null || dispatcher === null) {
-        return;
-      }
+  useEventLoop(
+    60,
+    () => {
       processMove();
-      dispatcher.dispatch(world);
-      forceRerender((i) => i + 1);
-    }, 1000 / 60);
-
-    return () => clearInterval(scheduler);
-  }, [world, dispatcher]);
+      dispatcher.dispatch();
+    },
+    [dispatcher]
+  );
 
   return (
     <div
