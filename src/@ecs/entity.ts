@@ -1,25 +1,22 @@
-import { AbstractComponent, ComponentData } from './component';
+import { AnyComponentData, Component } from './component';
 
 let GlobalId = 0;
 
 export type EntityId = number;
 
-export class Entity<
-  ComponentDatas extends ReadonlyArray<ComponentData<unknown>>
-> {
-  constructor(readonly id: EntityId, readonly componentDatas: ComponentDatas) {}
+export class Entity<DataArray extends readonly AnyComponentData[]> {
+  constructor(readonly id: EntityId, readonly dataArray: DataArray) {}
 
-  getDataFor<T>(component: AbstractComponent<T>): T | undefined {
-    return this.componentDatas.find(
-      (data) => data.component.id === component.id
-    )?.data as T;
+  getDataFor<T>(component: Component<T>): T | undefined {
+    return this.dataArray.find((data) => data.component.id === component.id)
+      ?.data as T;
   }
 }
 
-export function createEntity<
-  ComponentDatas extends ReadonlyArray<ComponentData<unknown>>
->(componentDatas: ComponentDatas): Entity<ComponentDatas> {
+export function createEntity<DataArray extends readonly AnyComponentData[]>(
+  dataArray: DataArray
+): Entity<DataArray> {
   const id = GlobalId;
   GlobalId += 1;
-  return new Entity(id, componentDatas);
+  return new Entity(id, dataArray);
 }

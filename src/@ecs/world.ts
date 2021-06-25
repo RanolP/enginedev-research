@@ -1,16 +1,13 @@
-import { ComponentData } from './component';
+import { AnyComponentData } from './component';
 import { createEntity, Entity, EntityId } from './entity';
 
 export class World {
-  public resources: Record<
-    EntityId,
-    Entity<readonly ComponentData<unknown>[]>
-  > = {};
+  public resources: Record<EntityId, Entity<readonly AnyComponentData[]>> = {};
 
-  createEntity<ComponentDatas extends ReadonlyArray<ComponentData<unknown>>>(
-    componentDatas: ComponentDatas
-  ): Entity<ComponentDatas> {
-    const entity = createEntity(componentDatas);
+  createEntity<ComponentDataArray extends ReadonlyArray<AnyComponentData>>(
+    componentDataArray: ComponentDataArray
+  ): Entity<ComponentDataArray> {
+    const entity = createEntity(componentDataArray);
     this.resources[entity.id] = entity;
     return entity;
   }

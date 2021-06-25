@@ -1,34 +1,36 @@
-import { AbstractComponent, InferSchema, InferSchemaArray } from './component';
+import { AnyComponent, InferSchemaArray } from './component';
 import { World } from './world';
 
-export abstract class System<Data extends Array<AbstractComponent<unknown>>> {
-  constructor(readonly data: Data) {}
+export type AnySystem = System<AnyComponent[]>;
+
+export abstract class System<ComponentArray extends AnyComponent[]> {
+  constructor(readonly componentArray: ComponentArray) {}
   abstract setup(world: World): void;
-  abstract run(data: InferSchemaArray<Data>): void;
+  abstract run(data: InferSchemaArray<ComponentArray>): void;
   abstract dispose(world: World): void;
 
   runNow(world: World): void {
     for (const resource of Object.values(world.resources)) {
-      const datas = this.data.map((component) =>
+      const datas = this.componentArray.map((component) =>
         resource.getDataFor(component)
       );
       if (datas.every((data) => data)) {
-        this.run(datas as InferSchemaArray<Data>);
+        this.run(datas as InferSchemaArray<ComponentArray>);
       }
     }
   }
 }
 
-export function system<Data extends Array<AbstractComponent<unknown>>>(
-  data: Data,
-  run: (...data: InferSchemaArray<Data>) => void
-): System<Data> {
-  return new (class extends System<Data> {
+export function system<ComponentArray extends AnyComponent[]>(
+  componentArray: ComponentArray,
+  run: (...data: InferSchemaArray<ComponentArray>) => void
+): System<ComponentArray> {
+  return new (class extends System<ComponentArray> {
     constructor() {
-      super(data);
+      super(componentArray);
     }
     setup() {}
-    run(data: InferSchemaArray<Data>) {
+    run(data: InferSchemaArray<ComponentArray>) {
       run(...data);
     }
     dispose() {}
