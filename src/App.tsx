@@ -10,6 +10,8 @@ import { useWorld } from './hooks/@ecs/use-world';
 import { useDispatcher } from './hooks/@ecs/use-dispatcher';
 import { useEntity } from './hooks/@ecs/use-entity';
 import { useEventLoop } from './hooks/use-event-loop';
+import { InputControlSystem } from './@game/systems/input-control';
+import { Input } from './@game/components/input';
 
 function App() {
   const world = useWorld();
@@ -17,43 +19,29 @@ function App() {
     MovementSystem,
     AirResistenceSystem,
     GravitySystem,
+    InputControlSystem,
   ]);
-  const player = useEntity(world, [
-    Position.create({ x: 0, y: 0 }),
-    Velocity.create({ x: 0, y: 0 }),
-  ] as const);
   const { keypress, handleKeyDown, handleKeyUp } = useKeyboardInput({
     w: 'moveUp',
     a: 'moveLeft',
     s: 'moveDown',
     d: 'moveRight',
   } as const);
-
-  const move = useCallback(
-    (x: number, y: number) => {
-      player?.mutate(Velocity, (velocity) => {
-        velocity.x += x;
-        velocity.y += y;
-      });
-    },
-    [player]
-  );
-
-  const processMove = useCallback(() => {
-    if (keypress.current.moveUp) move(0, -6);
-    if (keypress.current.moveLeft) move(-6, 0);
-    if (keypress.current.moveDown) move(0, 6);
-    if (keypress.current.moveRight) move(6, 0);
-  }, [keypress.current, move]);
+  const player = useEntity(world, [
+    Position.create({ x: 0, y: 0 }),
+    Velocity.create({ x: 0, y: 0 }),
+    Input.createRef(keypress),
+  ] as const);
 
   useEventLoop(
     60,
     () => {
-      processMove();
       dispatcher.dispatch();
     },
     [dispatcher]
   );
+
+  const position = world.getEntityData(player, Position);
 
   return (
     <div
@@ -65,8 +53,8 @@ function App() {
       <div
         className="me"
         style={{
-          left: player?.getDataFor(Position)?.x,
-          top: player?.getDataFor(Position)?.y,
+          left: position?.x,
+          top: position?.y,
         }}
       ></div>
     </div>

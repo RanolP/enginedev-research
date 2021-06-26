@@ -12,7 +12,7 @@ function stepToZero(value: number, step: number) {
   }
 }
 
-export const AirResistenceSystem = system([Velocity], (velocity) => {
+export const AirResistenceSystem = system([Velocity] as const, (velocity) => {
   velocity.x = stepToZero(velocity.x, 4);
   velocity.y = stepToZero(velocity.y, 4);
 });

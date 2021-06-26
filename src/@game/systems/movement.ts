@@ -14,7 +14,7 @@ function coerceIn(value: number, min: number, max: number) {
 }
 
 export const MovementSystem = system(
-  [Position, Velocity],
+  [Position, Velocity] as const,
   (position, velocity) => {
     position.x = coerceIn(position.x + velocity.x, 0, mapSize() - playerSize());
     position.y = coerceIn(position.y + velocity.y, 0, mapSize() - playerSize());

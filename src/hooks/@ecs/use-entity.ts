@@ -6,7 +6,7 @@ import { World } from '../../@ecs/world';
 export function useEntity<DataArray extends ReadonlyArray<AnyComponentData>>(
   world: World,
   dataArray: DataArray
-): Entity<DataArray> {
+): Entity {
   const [entity] = useState(() => world.createEntity(dataArray));
 
   return entity;

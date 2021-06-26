@@ -1,5 +1,5 @@
-export type InferSchemaArray<T> = {
-  [K in keyof T]: K extends number ? InferSchema<T[K]> : never;
+export type InferSchemaArray<T extends readonly unknown[]> = {
+  [K in keyof T]: InferSchema<T[K]>;
 };
 export type InferSchema<T> = T extends Component<infer U> ? U : never;
 
@@ -12,21 +12,22 @@ export interface ComponentData<T> {
 }
 
 export abstract class Component<T> {
-  private static GlobalComponentId = 0;
-
   // just for the type
   readonly Data: ComponentData<T> = undefined as unknown as any;
-
-  readonly id: number = Component.GlobalComponentId;
-
-  constructor() {
-    Component.GlobalComponentId += 1;
-  }
+  readonly id = Symbol();
 
   create(data: T): ComponentData<T> {
     return {
       component: this,
       data,
+    };
+  }
+  createRef(data: { current: T }): ComponentData<T> {
+    return {
+      component: this,
+      get data() {
+        return data.current;
+      },
     };
   }
 
