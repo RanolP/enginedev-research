@@ -14,13 +14,9 @@ import { Input } from './@game/components/input';
 
 function App() {
   const world = useWorld([Input, Position, Velocity], (world) => {
-    try {
-      const snapshot = localStorage.getItem('world');
-      if (snapshot) {
-        return snapshot;
-      }
-    } catch (e) {
-      console.error(e);
+    const snapshot = localStorage.getItem('world');
+    if (snapshot) {
+      return snapshot;
     }
 
     world.createEntity([
