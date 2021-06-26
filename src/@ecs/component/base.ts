@@ -14,20 +14,13 @@ export interface ComponentData<T> {
 export abstract class Component<T> {
   // just for the type
   readonly Data: ComponentData<T> = undefined as unknown as any;
-  readonly id = Symbol();
+
+  constructor(readonly id: string) {}
 
   create(data: T): ComponentData<T> {
     return {
       component: this,
       data,
-    };
-  }
-  createRef(data: { current: T }): ComponentData<T> {
-    return {
-      component: this,
-      get data() {
-        return data.current;
-      },
     };
   }
 

@@ -4,7 +4,7 @@ export class StringComponent extends Component<string> {
   static INSTANCE: StringComponent = new StringComponent();
 
   private constructor() {
-    super();
+    super('String');
   }
   validate(data: unknown): string {
     if (typeof data === 'string') {

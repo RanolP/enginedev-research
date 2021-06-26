@@ -2,7 +2,7 @@ import { Component } from './base';
 
 class ArrayComponent<T> extends Component<Array<T>> {
   constructor(private readonly component: Component<T>) {
-    super();
+    super(`${component.id}[]`);
   }
 
   validate(data: unknown): Array<T> {

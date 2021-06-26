@@ -17,6 +17,10 @@ export const MovementSystem = system(
   [Position, Velocity] as const,
   (position, velocity) => {
     position.x = coerceIn(position.x + velocity.x, 0, mapSize() - playerSize());
-    position.y = coerceIn(position.y + velocity.y, 0, mapSize() - playerSize());
+    position.y = coerceIn(
+      position.y + velocity.y,
+      0,
+      mapSize() - playerSize() - 20 * 16
+    );
   }
 );

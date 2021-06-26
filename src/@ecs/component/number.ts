@@ -4,7 +4,7 @@ export class NumberComponent extends Component<number> {
   static INSTANCE: NumberComponent = new NumberComponent();
 
   private constructor() {
-    super();
+    super('Number');
   }
 
   validate(data: unknown): number {

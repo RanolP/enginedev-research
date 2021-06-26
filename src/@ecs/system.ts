@@ -10,8 +10,7 @@ export abstract class System<ComponentArray extends readonly AnyComponent[]> {
   abstract dispose(world: World): void;
 
   runNow(world: World): void {
-    for (const key of Object.getOwnPropertySymbols(world.entities)) {
-      const entity = world.entities[key as unknown as string];
+    for (const entity of Object.values(world.entities)) {
       const datas = this.componentArray.map((component) =>
         world.getEntityData(entity, component)
       );

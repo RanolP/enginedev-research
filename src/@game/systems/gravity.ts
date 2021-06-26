@@ -6,8 +6,7 @@ import { Velocity } from '../components/velocity';
 export const GravitySystem = system(
   [Position, Velocity] as const,
   (position, velocity) => {
-    const center = mapSize() / 2 - playerSize() / 2;
-    velocity.x += 2 * Math.atan((center - position.x) / 4);
-    velocity.y += 2 * Math.atan((center - position.y) / 4);
+    velocity.y +=
+      4 * Math.atan((mapSize() - playerSize() - 20 * 16 - position.y) / 4);
   }
 );

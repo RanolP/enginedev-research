@@ -1,5 +1,5 @@
-export type EntityId = number;
+export type EntityId = string;
 
 export class Entity {
-  readonly id = Symbol();
+  constructor(readonly id: EntityId) {}
 }

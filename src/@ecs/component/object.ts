@@ -11,8 +11,8 @@ export type InferObjectSchema<T extends ObjectSchema> = {
 class ObjectComponent<T extends ObjectSchema> extends Component<
   InferObjectSchema<T>
 > {
-  constructor(private readonly schema: T) {
-    super();
+  constructor(name: string, private readonly schema: T) {
+    super(name);
   }
 
   validate(data: unknown): InferObjectSchema<T> {
@@ -45,7 +45,8 @@ class ObjectComponent<T extends ObjectSchema> extends Component<
 }
 
 export function object<Schema extends ObjectSchema>(
+  name: string,
   schema: Schema
 ): Component<InferObjectSchema<Schema>> {
-  return new ObjectComponent(schema);
+  return new ObjectComponent(name, schema);
 }

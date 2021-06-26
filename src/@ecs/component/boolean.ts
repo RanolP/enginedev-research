@@ -4,7 +4,7 @@ export class BooleanComponent extends Component<boolean> {
   static INSTANCE: BooleanComponent = new BooleanComponent();
 
   private constructor() {
-    super();
+    super('Boolean');
   }
 
   validate(data: unknown): boolean {

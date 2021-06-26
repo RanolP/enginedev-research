@@ -13,3 +13,24 @@
 
   position: absolute;
 }
+
+.ground {
+  width: 100vmin;
+  height: 3rem;
+
+  bottom: 17rem;
+  position: absolute;
+  background: green;
+}
+
+.ground::after {
+  content: '';
+  width: 100vmin;
+  height: 17rem;
+
+  top: 3rem;
+  position: absolute;
+  background: brown;
+
+  display: block;
+}

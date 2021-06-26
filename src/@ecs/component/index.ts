@@ -1,5 +1,7 @@
 export * from './base';
 
+export * from './injected';
+
 export * from './number';
 export * from './string';
 export * from './boolean';

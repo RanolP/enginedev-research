@@ -8,40 +8,53 @@ import { AirResistenceSystem } from './@game/systems/air-resistence';
 import { GravitySystem } from './@game/systems/gravity';
 import { useWorld } from './hooks/@ecs/use-world';
 import { useDispatcher } from './hooks/@ecs/use-dispatcher';
-import { useEntity } from './hooks/@ecs/use-entity';
 import { useEventLoop } from './hooks/use-event-loop';
 import { InputControlSystem } from './@game/systems/input-control';
 import { Input } from './@game/components/input';
 
 function App() {
-  const world = useWorld();
+  const world = useWorld([Input, Position, Velocity], (world) => {
+    try {
+      const snapshot = localStorage.getItem('world');
+      if (snapshot) {
+        return snapshot;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    world.createEntity([
+      Input.create(),
+      Position.create({ x: 0, y: 0 }),
+      Velocity.create({ x: 0, y: 0 }),
+    ]);
+
+    return null;
+  });
   const dispatcher = useDispatcher(world, [
     MovementSystem,
     AirResistenceSystem,
     GravitySystem,
     InputControlSystem,
   ]);
+
   const { keypress, handleKeyDown, handleKeyUp } = useKeyboardInput({
     w: 'moveUp',
     a: 'moveLeft',
     s: 'moveDown',
     d: 'moveRight',
   } as const);
-  const player = useEntity(world, [
-    Position.create({ x: 0, y: 0 }),
-    Velocity.create({ x: 0, y: 0 }),
-    Input.createRef(keypress),
-  ] as const);
+
+  Input.injectGlobal(() => keypress.current);
 
   useEventLoop(
     60,
     () => {
       dispatcher.dispatch();
+      localStorage.setItem('world', world.createSnapshot());
     },
     [dispatcher]
   );
-
-  const position = world.getEntityData(player, Position);
 
   return (
     <div
@@ -50,13 +63,22 @@ function App() {
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}
     >
-      <div
-        className="me"
-        style={{
-          left: position?.x,
-          top: position?.y,
-        }}
-      ></div>
+      {Object.values(world.entities).map((entity) => {
+        const position = world.getEntityData(entity, Position);
+        if (!position) return null;
+
+        return (
+          <div
+            className="me"
+            key={entity.id}
+            style={{
+              left: position.x,
+              top: position.y,
+            }}
+          ></div>
+        );
+      })}
+      <div className="ground"> </div>
     </div>
   );
 }
